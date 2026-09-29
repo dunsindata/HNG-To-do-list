@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Productivity Suite</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coral: {
+                            500: '#FF5A5F',
+                            600: '#FF474C',
+                            700: '#E03E43'
+                        },
+                        surface: '#F4F7FE'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F4F7FE;
+        }
+
+        /* Donut / Circular Progress Custom CSS */
+        .donut-chart {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .donut-chart::before {
+            content: '';
+            position: absolute;
+            width: 54px;
+            height: 54px;
+            background-color: #ffffff;
+            border-radius: 50%;
+        }
+        .donut-inner {
+            position: relative;
+            z-index: 10;
+            font-weight: 700;
+            font-size: 13px;
+            color: #1E293B;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col antialiased">
+
+    <div class="flex h-screen overflow-hidden p-3 sm:p-6 gap-6 max-w-[1600px] mx-auto w-full">
+        
+        <!-- ================= SIDEBAR NAVIGATION ================= -->
+        <aside class="w-64 bg-coral-500 rounded-3xl flex flex-col justify-between p-6 text-white shrink-0 hidden lg:flex shadow-xl shadow-coral-500/10">
+            <div class="space-y-8">
+                <!-- User Profile Header -->
+                <div class="flex flex-col items-center text-center space-y-2 pt-2">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" 
+                             alt="Profile Avatar" 
+                             class="w-16 h-16 rounded-full border-2 border-white/80 object-cover shadow-md">
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-base tracking-tight leading-tight">Oluwadunsin</h2>
+                        <p class="text-[11px] text-white/70 truncate max-w-[180px]">oluwadunsin@example.com</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="space-y-2 font-medium text-sm">
+                    <button onclick="setTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white text-slate-800 shadow-md font-semibold transition hover:opacity-95">
+                        <i class="fa-solid fa-border-all text-coral-500"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button onclick="setTab('vital')" id="nav-vital" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>Vital Task</span>
+                    </button>
+
+                    <button onclick="setTab('mytask')" id="nav-mytask" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition">
+                        <i class="fa-regular fa-square-check"></i>
+                        <span>My Task</span>
+                    </button>
+
+                    <button onclick="setTab('categories')" id="nav-categories" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition">
+                        <i class="fa-solid fa-list-ul"></i>
+                        <span>Task Categories</span>
+                    </button>
+
+                    <button onclick="setTab('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </button>
+
+                    <button onclick="setTab('help')" id="nav-help" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition">
+                        <i class="fa-regular fa-circle-question"></i>
+                        <span>Help</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Logout Bottom Button -->
+            <button class="flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition text-sm font-medium">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </aside>
+
+        <!-- ================= MAIN CONTENT AREA ================= -->
+        <main class="flex-1 flex flex-col overflow-y-auto min-w-0 pr-1">
+            
+            <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <!-- Mobile Logo Header -->
+                <div class="flex items-center justify-between lg:hidden">
+                    <h1 class="text-2xl font-bold text-slate-800">Dash<span class="text-coral-500">board</span></h1>
+                    <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" class="p-2 text-slate-600 bg-white rounded-xl shadow-sm border border-slate-200">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+
+                <h1 class="text-2xl font-extrabold text-slate-900 hidden lg:block tracking-tight">Dash<span class="text-coral-500">board</span></h1>
+
+                <!-- Search Input Bar -->
+                <div class="relative w-full sm:w-96">
+                    <input type="text" id="search-input" onkeyup="filterTasks()" placeholder="Search your task here..." 
+                           class="w-full pl-4 pr-12 py-2.5 rounded-2xl bg-white border-0 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-coral-500/50 text-slate-800 placeholder-slate-400">
+                    <button class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-coral-500 hover:bg-coral-600 text-white w-8 h-8 rounded-xl flex items-center justify-center transition shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Top Utilities Right -->
+                <div class="flex items-center justify-end gap-3">
+                    <button class="w-10 h-10 rounded-2xl bg-coral-100/70 text-coral-500 flex items-center justify-center hover:bg-coral-100 transition">
+                        <i class="fa-regular fa-bell text-sm"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-2xl bg-coral-100/70 text-coral-500 flex items-center justify-center hover:bg-coral-100 transition">
+                        <i class="fa-solid fa-calendar-days text-sm"></i>
+                    </button>
+                    <div class="pl-2 border-l border-slate-200">
+                        <span id="current-date-badge" class="text-xs font-bold text-sky-500 bg-white px-3.5 py-2 rounded-2xl shadow-sm block text-center">
+                            Tuesday<br><span class="text-[10px] text-slate-400 font-semibold">20/06/2023</span>
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="bg-white rounded-3xl p-6 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        Welcome back, Oluwadunsin <span class="animate-bounce inline-block">👋</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Here is an overview of your active tasks and team progress.</p>
+                </div>
+
+                <!-- Avatar Stack and Invite Button -->
+                <div class="flex items-center gap-4">
+                    <div class="flex -space-x-2 overflow-hidden">
+                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Avatar 1">
+                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" alt="Avatar 2">
+                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" alt="Avatar 3">
+                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100" alt="Avatar 4">
+                        <div class="h-8 w-8 rounded-full bg-slate-100 ring-2 ring-white flex items-center justify-center text-[10px] font-bold text-slate-500">+2</div>
+                    </div>
+
+                    <button onclick="openInviteModal()" class="flex items-center gap-1.5 border border-coral-400 text-coral-500 hover:bg-coral-50 text-xs font-semibold px-3.5 py-2 rounded-xl transition">
+                        <i class="fa-solid fa-user-plus text-[10px]"></i>
+                        <span>Invite</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+                
+                <!-- ================= LEFT COLUMN: TO-DO LIST ================= -->
+                <section class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-regular fa-clipboard text-coral-500 font-bold"></i>
+                            <h3 class="font-bold text-base text-slate-800">To-Do</h3>
+                        </div>
+                        <button onclick="openAddTaskModal()" class="flex items-center gap-1 text-coral-500 hover:text-coral-600 text-xs font-semibold transition">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>Add task</span>
+                        </button>
+                    </div>
+
+                    <p class="text-xs text-slate-400 font-medium mb-4">20 June <span class="mx-1">•</span> Today</p>
+
+                    <!-- Active Task Cards Container -->
+                    <div id="todo-list" class="space-y-4 overflow-y-auto max-h-[600px] pr-1 flex-1">
+                        <!-- Dynamic To-Do Task Cards Rendered Here -->
+                    </div>
+                </section>
+
+                <!-- ================= RIGHT COLUMN: METRICS & COMPLETED ================= -->
+                <div class="lg:col-span-5 space-y-6 flex flex-col">
+                    
+                    <!-- TASK STATUS DONUT CHARTS PANEL -->
+                    <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i class="fa-regular fa-chart-bar text-coral-500 font-bold"></i>
+                            <h3 class="font-bold text-base text-slate-800">Task Status</h3>
+                        </div>
+
+                        <!-- 3 Donuts Container -->
+                        <div class="grid grid-cols-3 gap-2 text-center items-center">
+                            <!-- Completed Donut -->
+                            <div class="flex flex-col items-center">
+                                <div id="completed-chart" class="donut-chart mb-2" style="background: conic-gradient(#22C55E 0% 84%, #F1F5F9 84% 100%);">
+                                    <span id="completed-pct" class="donut-inner">84%</span>
+                                </div>
+                            </div>
+
+                            <!-- In Progress Donut -->
+                            <div class="flex flex-col items-center">
+                                <div id="inprogress-chart" class="donut-chart mb-2" style="background: conic-gradient(#2563EB 0% 46%, #F1F5F9 46% 100%);">
+                                    <span id="inprogress-pct" class="donut-inner">46%</span>
+                                </div>
+                            </div>
+
+                            <!-- Not Started Donut -->
+                            <div class="flex flex-col items-center">
+                                <div id="pending-chart" class="donut-chart mb-2" style="background: conic-gradient(#EF4444 0% 13%, #F1F5F9 13% 100%);">
+                                    <span id="pending-pct" class="donut-inner">13%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legend Row -->
+                        <div class="flex items-center justify-around pt-6 text-[11px] font-semibold text-slate-600 border-t border-slate-50 mt-4">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Completed
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span> In Progress
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-red-500"></span> Not Started
+                            </span>
+                        </div>
+                    </section>
+
+                    <!-- COMPLETED TASK SECTION -->
+                    <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="fa-regular fa-square-check text-coral-500 font-bold"></i>
+                            <h3 class="font-bold text-base text-slate-800">Completed Task</h3>
+                        </div>
+
+                        <!-- Finished Tasks Container -->
+                        <div id="completed-list" class="space-y-4 overflow-y-auto max-h-[320px] pr-1 flex-1">
+                            <!-- Dynamic Finished Task Cards Rendered Here -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <footer class="mt-6 bg-slate-800 text-slate-300 p-4 rounded-2xl text-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-brands fa-node-js text-emerald-400 text-lg"></i>
+                    <span><strong>Node.js API Integration Mode:</strong> Frontend is actively syncing with mocked local REST state.</span>
+                </div>
+                <button onclick="toggleApiDocsModal()" class="text-emerald-400 hover:underline font-mono text-[11px] shrink-0">
+                    View REST API Endpoints &rarr;
+                </button>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Modal: Add Task -->
+    <div id="add-task-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-base text-slate-800">Create New Task</h3>
+                <button onclick="closeAddTaskModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="add-task-form" onsubmit="handleAddTask(event)" class="mt-4 space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Task Title</label>
+                    <input type="text" id="form-title" required placeholder="e.g. Design Landing Page" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-coral-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Description / Subtext</label>
+                    <textarea id="form-desc" rows="2" placeholder="Task details and instructions..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-coral-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Priority</label>
+                        <select id="form-priority" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none">
+                            <option value="Moderate">Moderate</option>
+                            <option value="Extreme">Extreme</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Initial Status</label>
+                        <select id="form-status" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-none">
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Image Thumbnail URL (Optional)</label>
+                    <input type="url" id="form-image" placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-coral-500">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeAddTaskModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-coral-500 hover:bg-coral-600 text-white text-xs font-bold rounded-xl shadow-md transition">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Node API Endpoint Docs -->
+    <div id="api-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 text-slate-200 rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-800">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 class="font-bold text-sm text-emerald-400 font-mono">Node.js Express Server Schema</h3>
+                <button onclick="toggleApiDocsModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="mt-4 space-y-3 font-mono text-xs">
+                <p class="text-slate-400">Below are the simulated Express.js server routes that manage this dashboard state:</p>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <p class="text-sky-400"><span class="text-amber-400">GET</span> /api/tasks <span class="text-slate-500">// Fetch all tasks</span></p>
+                    <p class="text-sky-400"><span class="text-emerald-400">POST</span> /api/tasks <span class="text-slate-500">// Create new task</span></p>
+                    <p class="text-sky-400"><span class="text-purple-400">PATCH</span> /api/tasks/:id <span class="text-slate-500">// Update task status</span></p>
+                    <p class="text-sky-400"><span class="text-red-400">DELETE</span> /api/tasks/:id <span class="text-slate-500">// Remove task</span></p>
+                </div>
+                <p class="text-slate-400 text-[11px]">All dashboard actions instantly update local state while triggering simulated REST payload requests.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial Dataset matching reference image faithfully
+        let tasks = [
+            {
+                id: '1',
+                title: "Attend Tolulope's birthday",
+                description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements).....",
+                priority: 'Moderate',
+                status: 'Not Started',
+                created: '20/06/2023',
+                image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=200&auto=format&fit=crop&q=80',
+                completed: false
+            },
+            {
+                id: '2',
+                title: "Landing Page Design for TravelDays",
+                description: "Get the work done by EOD and discuss with client before leaving. (4 PM | Meeting Room)",
+                priority: 'Moderate',
+                status: 'In Progress',
+                created: '20/06/2023',
+                image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=200&auto=format&fit=crop&q=80',
+                completed: false
+            },
+            {
+                id: '3',
+                title: "Presentation on Final Product",
+                description: "Make sure everything is functioning and all the necessities are properly met. Prepare the team and get the documents ready for...",
+                priority: 'Moderate',
+                status: 'In Progress',
+                created: '19/06/2023',
+                image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=200&auto=format&fit=crop&q=80',
+                completed: false
+            },
+            {
+                id: '4',
+                title: "Walk the dog",
+                description: "Take the dog to the park and bring treats as well.",
+                priority: 'Low',
+                status: 'Completed',
+                created: 'Completed 2 days ago.',
+                image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200&auto=format&fit=crop&q=80',
+                completed: true
+            },
+            {
+                id: '5',
+                title: "Conduct meeting",
+                description: "Meet with the client and finalize requirements.",
+                priority: 'Extreme',
+                status: 'Completed',
+                created: 'Completed 2 days ago.',
+                image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200&auto=format&fit=crop&q=80',
+                completed: true
+            }
+        ];
+
+        let currentTab = 'dashboard';
+
+        // Render Functions
+        function renderDashboard() {
+            const todoListEl = document.getElementById('todo-list');
+            const completedListEl = document.getElementById('completed-list');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+
+            todoListEl.innerHTML = '';
+            completedListEl.innerHTML = '';
+
+            const activeTasks = tasks.filter(t => !t.completed && (t.title.toLowerCase().includes(searchVal) || t.description.toLowerCase().includes(searchVal)));
+            const completedTasks = tasks.filter(t => t.completed && (t.title.toLowerCase().includes(searchVal) || t.description.toLowerCase().includes(searchVal)));
+
+            // Render Active Tasks
+            if (activeTasks.length === 0) {
+                todoListEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">No pending tasks found.</p>`;
+            } else {
+                activeTasks.forEach(task => {
+                    const statusColor = task.status === 'In Progress' ? 'text-blue-600 font-semibold' : 'text-red-500 font-semibold';
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition flex justify-between gap-3 relative group";
+                    card.innerHTML = `
+                        <div class="flex-1 min-w-0 pr-2">
+                            <div class="flex items-start gap-2.5">
+                                <button onclick="toggleTaskStatus('${task.id}')" class="w-4 h-4 rounded-full border-2 border-red-500 mt-1 flex items-center justify-center shrink-0 hover:bg-red-50 transition">
+                                </button>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 leading-snug">${escapeHtml(task.title)}</h4>
+                                    <p class="text-[11px] text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">${escapeHtml(task.description)}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-[10px] text-slate-500 border-t border-slate-50 pt-2.5">
+                                <span>Priority: <strong class="text-sky-500 font-medium">${task.priority}</strong></span>
+                                <span>Status: <strong class="${statusColor}">${task.status}</strong></span>
+                                <span class="text-slate-400">Created on: ${task.created}</span>
+                            </div>
+                        </div>
+
+                        ${task.image ? `
+                            <img src="${task.image}" alt="Task Thumbnail" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100">
+                        ` : ''}
+
+                        <!-- Quick Delete Option on Hover -->
+                        <button onclick="deleteTask('${task.id}')" class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 text-xs transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `;
+                    todoListEl.appendChild(card);
+                });
+            }
+
+            // Render Completed Tasks
+            if (completedTasks.length === 0) {
+                completedListEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">No finished tasks yet.</p>`;
+            } else {
+                completedTasks.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex justify-between gap-3 relative group";
+                    card.innerHTML = `
+                        <div class="flex-1 min-w-0 pr-2">
+                            <div class="flex items-start gap-2.5">
+                                <button onclick="toggleTaskStatus('${task.id}')" class="w-4 h-4 rounded-full border-2 border-emerald-500 bg-emerald-500 text-white mt-1 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-check text-[9px]"></i>
+                                </button>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 leading-snug">${escapeHtml(task.title)}</h4>
+                                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">${escapeHtml(task.description)}</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 text-[10px] text-slate-400 space-y-0.5">
+                                <p>Status: <strong class="text-emerald-500 font-semibold">Completed</strong></p>
+                                <p class="text-slate-400">${task.created}</p>
+                            </div>
+                        </div>
+
+                        ${task.image ? `
+                            <img src="${task.image}" alt="Task Thumbnail" class="w-16 h-16 rounded-xl object-cover shrink-0 border border-slate-100">
+                        ` : ''}
+                    `;
+                    completedListEl.appendChild(card);
+                });
+            }
+
+            updateMetrics();
+        }
+
+        // Calculate and animate donut charts
+        function updateMetrics() {
+            const total = tasks.length || 1;
+            const completedCount = tasks.filter(t => t.completed).length;
+            const inProgressCount = tasks.filter(t => !t.completed && t.status === 'In Progress').length;
+            const notStartedCount = tasks.filter(t => !t.completed && t.status === 'Not Started').length;
+
+            const completedPct = Math.round((completedCount / total) * 100);
+            const inProgressPct = Math.round((inProgressCount / total) * 100);
+            const pendingPct = Math.round((notStartedCount / total) * 100);
+
+            // Update Labels
+            document.getElementById('completed-pct').textContent = `${completedPct}%`;
+            document.getElementById('inprogress-pct').textContent = `${inProgressPct}%`;
+            document.getElementById('pending-pct').textContent = `${pendingPct}%`;
+
+            // Update Conic Gradients
+            document.getElementById('completed-chart').style.background = `conic-gradient(#22C55E 0% ${completedPct}%, #F1F5F9 ${completedPct}% 100%)`;
+            document.getElementById('inprogress-chart').style.background = `conic-gradient(#2563EB 0% ${inProgressPct}%, #F1F5F9 ${inProgressPct}% 100%)`;
+            document.getElementById('pending-chart').style.background = `conic-gradient(#EF4444 0% ${pendingPct}%, #F1F5F9 ${pendingPct}% 100%)`;
+        }
+
+        // Toggle Task Completion State
+        function toggleTaskStatus(id) {
+            tasks = tasks.map(t => {
+                if (t.id === id) {
+                    const isFinished = !t.completed;
+                    return {
+                        ...t,
+                        completed: isFinished,
+                        status: isFinished ? 'Completed' : 'In Progress',
+                        created: isFinished ? 'Completed just now' : '20/06/2023'
+                    };
+                }
+                return t;
+            });
+            renderDashboard();
+        }
+
+        // Delete Task
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderDashboard();
+        }
+
+        // Filter Action
+        function filterTasks() {
+            renderDashboard();
+        }
+
+        // Modal Controls
+        function openAddTaskModal() {
+            document.getElementById('add-task-modal').classList.remove('hidden');
+        }
+
+        function closeAddTaskModal() {
+            document.getElementById('add-task-modal').classList.add('hidden');
+        }
+
+        function handleAddTask(e) {
+            e.preventDefault();
+            const title = document.getElementById('form-title').value.trim();
+            const desc = document.getElementById('form-desc').value.trim();
+            const priority = document.getElementById('form-priority').value;
+            const status = document.getElementById('form-status').value;
+            const image = document.getElementById('form-image').value.trim();
+
+            const newTask = {
+                id: Date.now().toString(),
+                title: title,
+                description: desc || 'No additional details provided.',
+                priority: priority,
+                status: status,
+                created: '20/06/2023',
+                image: image || 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=200&auto=format&fit=crop&q=80',
+                completed: false
+            };
+
+            tasks.unshift(newTask);
+            renderDashboard();
+            closeAddTaskModal();
+            document.getElementById('add-task-form').reset();
+        }
+
+        // Sidebar Navigation Tab Switching
+        function setTab(tabName) {
+            currentTab = tabName;
+            const navs = ['dashboard', 'vital', 'mytask', 'categories', 'settings', 'help'];
+            navs.forEach(n => {
+                const btn = document.getElementById(`nav-${n}`);
+                if (btn) {
+                    if (n === tabName) {
+                        btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-white text-slate-800 shadow-md font-semibold transition";
+                    } else {
+                        btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/90 hover:bg-white/10 transition font-medium text-sm";
+                    }
+                }
+            });
+        }
+
+        function toggleApiDocsModal() {
+            const modal = document.getElementById('api-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function openInviteModal() {
+            alert('Invite link copied to clipboard!');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Initialize Live Date Badge
+        window.onload = function() {
+            renderDashboard();
+        };
+    </script>
+</body>
+</html>
